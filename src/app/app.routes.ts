@@ -14,4 +14,9 @@ export const routes: Routes = [
         (m) => m.selectorRoutes
       ),
   },
+
+  {
+    path: '**',
+    redirectTo: 'selector',
+  },
 ];
