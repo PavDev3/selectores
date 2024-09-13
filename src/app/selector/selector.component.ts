@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { filter, switchMap } from 'rxjs';
+import { Region } from '../country/interfaces/country.interfaces';
+import { CountriesService } from '../country/services/countries.service';
 
 @Component({
   selector: 'app-selector',
@@ -10,17 +13,31 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
     <div class="mt-3">
       <h1>Selectores</h1>
     </div>
-
-    <form [formGroup]="countriesForm">
+    <!-- Region -->
+    <form [formGroup]="regionsForm">
       <div class="row mb-3">
         <div class="col">
           <label class="form-label">Continente:</label>
-          <select formControlName="continent" class="form-control">
-            <option value="1">África</option>
-            <option value="2">América</option>
-            <option value="3">Asia</option>
-            <option value="4">Europa</option>
-            <option value="5">Oceanía</option>
+          <select formControlName="region" class="form-control">
+            <option value="">Seleccione un continente</option>
+            @for (region of regions; track region) {
+            <option value="{{ region }}">{{ region }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </form>
+
+    <!-- Country -->
+    <form [formGroup]="countriesForm">
+      <div class="row mb-3">
+        <div class="col">
+          <label class="form-label">País:</label>
+          <select formControlName="country" class="form-control">
+            <option value="">Seleccione un país</option>
+            <!-- @for (country of countries; track country) {
+            <option value="{{ country }}">{{ country }}</option>
+            } -->
           </select>
         </div>
       </div>
@@ -28,18 +45,45 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
     <h3>Formulario</h3>
     <code>
-      {{ countriesForm.value | json }}
+      {{ regionsForm.value | json }}
     </code>
-    <p>Valido: {{ countriesForm.valid }}</p>
+    <p>Valido: {{ regionsForm.valid }}</p>
   `,
   styles: [],
 })
-export class SelectorComponent {
+export class SelectorComponent implements OnInit {
   readonly #formBuilder = inject(FormBuilder);
+  readonly #countriesService = inject(CountriesService);
 
-  readonly countriesForm = this.#formBuilder.group({
-    continent: ['', Validators.required],
+  readonly regionsForm = this.#formBuilder.group({
+    region: ['', Validators.required],
     country: ['', Validators.required],
     borders: ['', Validators.required],
   });
+
+  readonly countriesForm = this.#formBuilder.group({
+    country: ['', Validators.required],
+  });
+
+  ngOnInit(): void {
+    this.onRegionChanged();
+  }
+
+  get regions() {
+    return this.#countriesService.regions;
+  }
+
+  onRegionChanged() {
+    this.regionsForm
+      .get('region')!
+      .valueChanges.pipe(
+        filter((region) => region !== null && region !== ''),
+        switchMap((region) =>
+          this.#countriesService.getCountriesByRegion(region as Region)
+        )
+      )
+      .subscribe((countries) => {
+        console.log(countries);
+      });
+  }
 }
