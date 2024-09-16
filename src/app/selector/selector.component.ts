@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { filter, switchMap } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs';
 import { Region, SmallCountry } from '../country/interfaces/country.interfaces';
 import { CountriesService } from '../country/services/countries.service';
 
@@ -29,7 +29,8 @@ import { CountriesService } from '../country/services/countries.service';
     </form>
 
     <!-- Country -->
-    <form [formGroup]="countriesForm">
+    @if (countriesByRegion.length > 0) {
+    <form [formGroup]="regionsForm">
       <div class="row mb-3">
         <div class="col">
           <label class="form-label">País:</label>
@@ -42,6 +43,24 @@ import { CountriesService } from '../country/services/countries.service';
         </div>
       </div>
     </form>
+    }
+
+    <!-- Borders -->
+    @if (borders.length > 0) {
+    <form [formGroup]="regionsForm" ]>
+      <div class="row mb-3">
+        <div class="col">
+          <label class="form-label">Fronteras:</label>
+          <select formControlName="borders" class="form-control">
+            <option value="">Seleccione una frontera</option>
+            @for (border of borders; track border) {
+            <option value="{{ border.cca3 }}">{{ border.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </form>
+    }
 
     <h3>Formulario</h3>
     <code>
@@ -56,6 +75,7 @@ export class SelectorComponent implements OnInit {
   readonly #countriesService = inject(CountriesService);
 
   public countriesByRegion: SmallCountry[] = [];
+  public borders: SmallCountry[] = [];
 
   readonly regionsForm = this.#formBuilder.group({
     region: ['', Validators.required],
@@ -63,12 +83,9 @@ export class SelectorComponent implements OnInit {
     borders: ['', Validators.required],
   });
 
-  readonly countriesForm = this.#formBuilder.group({
-    country: ['', Validators.required],
-  });
-
   ngOnInit(): void {
     this.onRegionChanged();
+    this.onCountryChanged();
   }
 
   get regions() {
@@ -79,13 +96,39 @@ export class SelectorComponent implements OnInit {
     this.regionsForm
       .get('region')!
       .valueChanges.pipe(
+        //Para limpiar el campo de país cuando se cambia de región
+        tap(() => this.regionsForm.get('country')?.reset('')),
+        //Para evitar que se envíen valores vacíos
         filter((region) => region !== null && region !== ''),
+        //Para obtener los países de la región seleccionada
         switchMap((region) =>
           this.#countriesService.getCountriesByRegion(region as Region)
         )
       )
+      //Para actualizar la lista de países
       .subscribe((countries) => {
         this.countriesByRegion = countries;
+        //Ordenar la lista de países
+        this.countriesByRegion.sort((a, b) => a.name.localeCompare(b.name));
+        console.log({ countries: this.countriesByRegion });
+      });
+  }
+
+  onCountryChanged() {
+    this.regionsForm
+      .get('country')!
+      .valueChanges.pipe(
+        // Limpiar el campo de fronteras cuando se cambia de país
+        tap(),
+        // Filtrar para asegurarse de que solo pasen valores que sean cadenas no vacías
+        filter((value): value is string => value !== null && value.length > 0),
+        // switchMap para hacer la llamada al servicio con el cca3 seleccionado
+        switchMap((cca3: string) =>
+          this.#countriesService.getCountryByAlphaCode(cca3)
+        )
+      )
+      .subscribe((country) => {
+        console.log({ borders: country.borders });
       });
   }
 }
