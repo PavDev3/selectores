@@ -99,7 +99,7 @@ export class SelectorComponent implements OnInit {
         //Para limpiar el campo de país cuando se cambia de región
         tap(() => this.regionsForm.get('country')?.reset('')),
         //Para evitar que se envíen valores vacíos
-        filter((region) => region !== null && region !== ''),
+        filter(Boolean),
         //Para obtener los países de la región seleccionada
         switchMap((region) =>
           this.#countriesService.getCountriesByRegion(region as Region)
@@ -120,11 +120,12 @@ export class SelectorComponent implements OnInit {
         // Limpiar el campo de fronteras cuando se cambia de país
         tap(() => this.regionsForm.get('borders')?.reset('')),
         // Filtrar para asegurarse de que solo pasen valores que sean cadenas no vacías
-        filter((value): value is string => value !== null && value.length > 0),
+        filter(Boolean),
         // switchMap para hacer la llamada al servicio con el cca3 seleccionado
         switchMap((cca3: string) =>
           this.#countriesService.getCountryByAlphaCode(cca3)
         ),
+        // switchMap para hacer la llamada al servicio con los códigos de frontera
         switchMap((country) =>
           this.#countriesService.getCountryBordersByCodes(country.borders)
         )
