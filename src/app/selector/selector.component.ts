@@ -47,7 +47,7 @@ import { CountriesService } from '../country/services/countries.service';
 
     <!-- Borders -->
     @if (borders.length > 0) {
-    <form [formGroup]="regionsForm" ]>
+    <form [formGroup]="regionsForm">
       <div class="row mb-3">
         <div class="col">
           <label class="form-label">Fronteras:</label>
@@ -119,16 +119,19 @@ export class SelectorComponent implements OnInit {
       .get('country')!
       .valueChanges.pipe(
         // Limpiar el campo de fronteras cuando se cambia de país
-        tap(),
+        tap(() => this.regionsForm.get('borders')?.reset('')),
         // Filtrar para asegurarse de que solo pasen valores que sean cadenas no vacías
         filter((value): value is string => value !== null && value.length > 0),
         // switchMap para hacer la llamada al servicio con el cca3 seleccionado
         switchMap((cca3: string) =>
           this.#countriesService.getCountryByAlphaCode(cca3)
+        ),
+        switchMap((country) =>
+          this.#countriesService.getCountryBordersByCodes(country.borders)
         )
       )
-      .subscribe((country) => {
-        console.log({ borders: country.borders });
+      .subscribe((countries) => {
+        this.borders = countries;
       });
   }
 }

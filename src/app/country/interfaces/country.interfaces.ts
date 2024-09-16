@@ -28,67 +28,19 @@ export interface Country {
   area: number;
   demonyms: Demonyms;
   flag: string;
-  maps: Maps;
+
   population: number;
-  car: Car;
+
   timezones: string[];
   continents: string[];
   flags: Flags;
-  coatOfArms: CoatOfArms;
+
   startOfWeek: StartOfWeek;
-  capitalInfo: CapitalInfo;
+
   cioc?: string;
   borders?: string[];
   gini?: { [key: string]: number };
   fifa?: string;
-  postalCode?: PostalCode;
-}
-
-export interface CapitalInfo {
-  latlng: number[];
-}
-
-export interface Car {
-  signs: string[];
-  side: Side;
-}
-
-export enum Side {
-  Left = 'left',
-  Right = 'right',
-}
-
-export interface CoatOfArms {
-  png?: string;
-  svg?: string;
-}
-
-export interface Currencies {
-  NOK?: All;
-  EUR?: All;
-  GBP?: All;
-  GGP?: All;
-  RON?: All;
-  MKD?: All;
-  ALL?: All;
-  DKK?: All;
-  CHF?: All;
-  CZK?: All;
-  PLN?: All;
-  RSD?: All;
-  RUB?: All;
-  IMP?: All;
-  SEK?: All;
-  MDL?: All;
-  FOK?: All;
-  BGN?: All;
-  BYN?: All;
-  BAM?: BAM;
-  JEP?: All;
-  HUF?: All;
-  UAH?: All;
-  GIP?: All;
-  ISK?: All;
 }
 
 export interface All {
@@ -172,11 +124,6 @@ export interface Languages {
   isl?: string;
 }
 
-export interface Maps {
-  googleMaps: string;
-  openStreetMaps: string;
-}
-
 export interface Name {
   common: string;
   official: string;
@@ -186,11 +133,6 @@ export interface Name {
 export interface Translation {
   official: string;
   common: string;
-}
-
-export interface PostalCode {
-  format: string;
-  regex: string;
 }
 
 export enum StartOfWeek {
