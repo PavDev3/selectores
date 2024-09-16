@@ -110,7 +110,6 @@ export class SelectorComponent implements OnInit {
         this.countriesByRegion = countries;
         //Ordenar la lista de países
         this.countriesByRegion.sort((a, b) => a.name.localeCompare(b.name));
-        console.log({ countries: this.countriesByRegion });
       });
   }
 

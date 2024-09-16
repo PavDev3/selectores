@@ -55,13 +55,16 @@ export class CountriesService {
   getCountryBordersByCodes(borders: string[]): Observable<SmallCountry[]> {
     if (!borders || borders.length === 0) return of([]);
 
+    // Creado una lista de observables
     const countriesRequests: Observable<SmallCountry>[] = [];
 
+    // Iterando sobre cada código de frontera
     borders.forEach((code) => {
       const request = this.getCountryByAlphaCode(code);
       countriesRequests.push(request);
     });
 
+    // Combinando todos los observables en uno solo
     return combineLatest(countriesRequests);
   }
 }
