@@ -1,6 +1,7 @@
 export interface Country {
   name: Name;
   status: Status;
+  cca3: string;
   unMember: boolean;
   capital: string[];
   altSpellings: string[];

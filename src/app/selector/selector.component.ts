@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { filter, switchMap } from 'rxjs';
-import { Region } from '../country/interfaces/country.interfaces';
+import { Region, SmallCountry } from '../country/interfaces/country.interfaces';
 import { CountriesService } from '../country/services/countries.service';
 
 @Component({
@@ -35,9 +35,9 @@ import { CountriesService } from '../country/services/countries.service';
           <label class="form-label">País:</label>
           <select formControlName="country" class="form-control">
             <option value="">Seleccione un país</option>
-            <!-- @for (country of countries; track country) {
-            <option value="{{ country }}">{{ country }}</option>
-            } -->
+            @for (country of countriesByRegion; track country) {
+            <option value="{{ country.cca3 }}">{{ country.name }}</option>
+            }
           </select>
         </div>
       </div>
@@ -54,6 +54,8 @@ import { CountriesService } from '../country/services/countries.service';
 export class SelectorComponent implements OnInit {
   readonly #formBuilder = inject(FormBuilder);
   readonly #countriesService = inject(CountriesService);
+
+  public countriesByRegion: SmallCountry[] = [];
 
   readonly regionsForm = this.#formBuilder.group({
     region: ['', Validators.required],
@@ -83,7 +85,7 @@ export class SelectorComponent implements OnInit {
         )
       )
       .subscribe((countries) => {
-        console.log(countries);
+        this.countriesByRegion = countries;
       });
   }
 }
