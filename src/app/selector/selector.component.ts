@@ -3,6 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { filter, switchMap, tap } from 'rxjs';
 import { Region, SmallCountry } from '../country/interfaces/country.interfaces';
+import { bordersValidator } from '../country/services/border.validator';
 import { CountriesService } from '../country/services/countries.service';
 
 @Component({
@@ -80,7 +81,7 @@ export class SelectorComponent implements OnInit {
   readonly regionsForm = this.#formBuilder.group({
     region: ['', Validators.required],
     country: ['', Validators.required],
-    borders: ['', Validators.required],
+    borders: ['', [Validators.required, bordersValidator()]],
   });
 
   ngOnInit(): void {
@@ -119,6 +120,7 @@ export class SelectorComponent implements OnInit {
       .valueChanges.pipe(
         // Limpiar el campo de fronteras cuando se cambia de país
         tap(() => this.regionsForm.get('borders')?.reset('')),
+        tap(() => this.regionsForm.get('borders')?.disable()),
         // Filtrar para asegurarse de que solo pasen valores que sean cadenas no vacías
         filter(Boolean),
         // switchMap para hacer la llamada al servicio con el cca3 seleccionado
@@ -132,6 +134,9 @@ export class SelectorComponent implements OnInit {
       )
       .subscribe((countries) => {
         this.borders = countries;
+        if (countries.length > 0) {
+          this.regionsForm.get('borders')?.enable();
+        }
       });
   }
 }
