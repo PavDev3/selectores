@@ -6,7 +6,7 @@ export function bordersValidator(): ValidatorFn {
 
     // Verificar si el país tiene fronteras habilitadas
     if (bordersControl?.untouched) {
-      return { required: false };
+      return { required: true };
     }
 
     // Si no se requiere seleccionar frontera o si se ha seleccionado una, es válido
