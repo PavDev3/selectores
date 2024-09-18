@@ -54,7 +54,6 @@ export class CountriesService {
 
   getCountryBordersByCodes(borders: string[]): Observable<SmallCountry[]> {
     if (!borders || borders.length === 0) return of([]);
-
     // Creado una lista de observables
     const countriesRequests: Observable<SmallCountry>[] = [];
 
